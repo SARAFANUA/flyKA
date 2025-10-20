@@ -259,11 +259,16 @@ html, body {
     border-left: 4px solid transparent;
     transition: all var(--transition-fast);
     background: var(--lighter-bg);
+    /* === ДОДАНО: Обрізати будь-який вміст, що виходить за межі === */
+    overflow-x: hidden; 
+    /* ДОДАНО: Встановлюємо явний min-width, щоб запобігти розтягуванню браузером */
+    min-width: 0; 
 }
+
 .file-list-item:hover {
     background: var(--light-bg);
     border-left-color: var(--primary-color-light);
-    transform: translateX(2px);
+    transform: translateX(0); /* Змінено: прибираємо translateX(2px), щоб не було зсуву, який може спричинити переповнення */
 }
 .file-list-item.active {
     background: linear-gradient(to right, rgba(37, 99, 235, 0.1), transparent);
@@ -276,19 +281,30 @@ html, body {
 .file-list-item.route-hidden .route-name {
     text-decoration: line-through;
 }
+
 .route-name {
     cursor: pointer;
     flex-grow: 1;
-    margin-right: 10px;
+    margin-right: 5px;
     color: var(--text-primary);
+    /* === КОРЕКЦІЯ: Основна робота тут. Дозволяємо стискатися і обрізати, якщо потрібно === */
+    flex-shrink: 1; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* ДОДАНО: Важливо для flex-елементів, які мають бути обмежені */
 }
 
 .route-controls { 
     display: flex; align-items: center; 
     white-space: nowrap; 
-    overflow-x: hidden; 
+    /* overflow-x: hidden; тут вже не потрібен */
+    flex-shrink: 0; /* ДОДАНО: Запобігаємо стисканню контролів, дозволяючи стискатися назві */
 }
-.route-controls button { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 5px; line-height: 1; }
+.route-controls button { 
+    background: none; border: none; cursor: pointer; font-size: 16px; 
+    padding: 2px 5px; line-height: 1; 
+}
 .toggle-visibility-btn { opacity: 0.7; }
 .remove-route-btn { color: #cc0000; font-weight: bold; }
 
@@ -459,9 +475,12 @@ html, body {
 }
 .map-controls-group {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: center; /* Вирівнює вміст по центру вертикалі */
+    gap: 8px; 
     flex-shrink: 1;
+}
+.clustering-group #clustering-label {
+    margin-right: 5px; /* Невеликий додатковий відступ від перемикача */
 }
 
 .map-controls span,
@@ -476,16 +495,17 @@ html, body {
 
 /* --- Стилі для спадаючого списку --- */
 .map-controls-group select {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--lighter-bg);
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
     font-size: 0.9em;
     cursor: pointer;
-    transition: all var(--transition-fast);
-    flex-shrink: 1;
-    min-width: 140px;
-    font-weight: 500;
+    transition: border-color 0.2s;
+    flex-shrink: 1; 
+    min-width: 120px; 
+    /* ДОДАНО: Якщо хочете, щоб select займав більше місця, щоб вирівнятися з текстом */
+    width: 100%; 
 }
 .map-controls-group select:hover {
     border-color: var(--primary-color-light);
@@ -663,9 +683,29 @@ input:checked + .slider-small:before { transform: translateX(14px); }
     text-align: center;
 }
 
+/* --- ВМІСТ СПИСКІВ: ПРОКРУЧУЄТЬСЯ --- */
+#route-items, #points-list-items {
+    padding: 0; 
+    overflow-y: auto; /* Тільки тут прокрутка */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; 
+}
+
+/* === ДОДАНО: Обмеження висоти для списку точок у сайдбарі === */
+#points-list-items {
+    /* Розрахунок: ~5.5 рядків * 35px/рядок = ~192.5px */
+    max-height: 210px; 
+    /* Ця фіксована висота гарантує, що список буде прокручуватися, 
+       якщо він містить більше 5-6 елементів. */
+}
+
+
 /* --- Стилі для списку точок (3 колонки) --- */
+/* Цей селектор застосовується до обох: списку в сайдбарі та списку в модальному вікні */
 #points-list-items li:not(.empty-list-item),
-.modal-body .points-list-items li:not(.empty-list-item) {
+.modal-body ul li:not(.empty-list-item) { 
     display: grid;
     grid-template-columns: 40px 1fr auto;
     gap: 15px;
@@ -673,11 +713,11 @@ input:checked + .slider-small:before { transform: translateX(14px); }
     padding: 8px 12px;
     border-bottom: 1px solid #eee;
 }
-#points-list-items li:hover, .modal-body .points-list-items li:hover {
+
+#points-list-items li:hover, .modal-body ul li:hover {
     background-color: #f0f8ff;
     cursor: pointer;
 }
-
 .point-index { color: #888; text-align: right; }
 .point-duration {
     text-align: right;
@@ -723,3 +763,4 @@ input:checked + .slider-small:before { transform: translateX(14px); }
     text-decoration: none;
     border-radius: 0 !important;
 }
+
