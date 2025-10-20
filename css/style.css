@@ -1,0 +1,558 @@
+/* css/style.css */
+:root {
+    --sidebar-width: 380px;
+    --primary-color: #007bff;
+    --primary-color-dark: #0056b3;
+    --danger-color: #d9534f;
+    --light-bg: #f8f9fa;
+    --border-color: #dee2e6;
+}
+
+html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    height: 100vh; width: 100vw;
+    overflow: hidden; display: flex;
+    color: #333; background-color: #f4f4f4;
+}
+
+/* ====================================================================== */
+/* --- САЙДБАР --- */
+/* ====================================================================== */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    transition: margin-left 0.3s ease-in-out;
+    z-index: 1001;
+    position: relative;
+    flex-shrink: 0;
+    margin-left: 0;
+}
+
+.sidebar.collapsed {
+    margin-left: calc(-1 * var(--sidebar-width));
+}
+
+.sidebar-content {
+    display: flex; 
+    flex-direction: column;
+    height: 100%; 
+    padding: 20px;
+    box-sizing: border-box; 
+    width: 100%; 
+    overflow-x: hidden; 
+    /* ВИПРАВЛЕНО: Видаляємо overflow-y: auto, щоб не було конфлікту з вкладеними прокручуваними списками */
+}
+
+.sidebar-toggle-btn {
+    position: absolute; top: 50%;
+    left: var(--sidebar-width);
+    transform: translateY(-50%);
+    width: 20px; height: 60px;
+    background-color: var(--primary-color);
+    color: white; border: none; cursor: pointer;
+    z-index: 1000;
+    border-radius: 0 5px 5px 0;
+    font-size: 18px; display: flex;
+    align-items: center; justify-content: center;
+    transition: background-color 0.2s, left 0.3s ease-in-out;
+}
+
+.sidebar.collapsed + .sidebar-toggle-btn {
+    left: 0;
+}
+
+.sidebar-toggle-btn:hover { background-color: var(--primary-color-dark); }
+
+/* --- Структура сайдбару (flexbox) --- */
+.sidebar-header, .sidebar-footer {
+    flex-shrink: 0;
+}
+
+.sidebar-scrollable-content {
+    flex-grow: 1;
+    display: flex; flex-direction: column;
+    gap: 15px; 
+    margin: 10px 0; 
+    min-height: 0;
+    /* ВИПРАВЛЕНО: НЕ прокручуємо тут, дозволяємо вкладеним спискам прокручуватися самостійно */
+    /* overflow-y: auto; -- ЦЕ ВИДАЛЕНО! */ 
+    padding-right: 5px; 
+}
+
+.sidebar h1 {
+    margin-top: 0; margin-bottom: 15px; 
+    text-align: center;
+    font-size: 1.6em;
+    color: #212529;
+}
+
+/* --- Контейнери списків --- */
+#file-list-container, #points-list-container {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--light-bg);
+    display: flex; 
+    flex-direction: column; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+    /* ДОДАНО: Для коректного flex-розподілу всередині (заголовок фіксований, список прокручується) */
+    overflow: hidden; 
+}
+
+#file-list-container {
+    flex-shrink: 0;
+    max-height: 35%;
+}
+
+#points-list-container {
+    flex-grow: 1;
+    min-height: 150px;
+}
+
+/* --- Заголовки списків: ФІКСОВАНІ --- */
+#file-list-container h3, .points-list-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#file-list-container h3, .points-list-header {
+    padding: 10px 15px;
+    flex-shrink: 0; 
+}
+
+.sticky-summary {
+    padding: 10px 15px;
+    position: sticky;
+    top: 0;
+    background-color: var(--light-bg);
+    z-index: 10;
+    font-size: 0.9em; color: #555;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* --- ВМІСТ СПИСКІВ: ПРОКРУЧУЄТЬСЯ --- */
+#route-items, #points-list-items {
+    padding: 0; 
+    overflow-y: auto; /* Тільки тут прокрутка */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* ДОДАНО: Важливо для flex-контейнерів з overflow */
+}
+
+/* --- Область завантаження файлів --- */
+.drop-area {
+    border: 2px dashed #43a7e0; border-radius: 10px;
+    padding: 10px; 
+    text-align: center; color: #777777;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+.drop-area p {
+    margin: 5px 0 0 0; 
+    font-size: 0.9em; 
+}
+
+.drop-area.highlight { border-color: var(--primary-color); background-color: #46a1f180; }
+.select-files-btn {
+    display: block; margin: 0 auto 5px auto; 
+    padding: 8px 16px; 
+    background-color: var(--primary-color); color: rgb(255, 255, 255);
+    border: none; border-radius: 5px; cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    font-weight: bold;
+    font-size: 0.95em; 
+}
+.select-files-btn:hover {
+    background-color: var(--primary-color-dark);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* --- Списки (маршрути та точки) --- */
+#route-items, #points-list-items, .date-filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.file-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; border-bottom: 1px solid #eee;
+    border-left: 5px solid transparent; transition: background-color 0.2s;
+}
+.file-list-item:hover { background-color: #f0f0f0; }
+.file-list-item.active { background-color: #e0eafc; border-left-color: #4a86e8 !important; }
+.file-list-item.route-hidden { opacity: 0.6; }
+.file-list-item.route-hidden .route-name { text-decoration: line-through; }
+.route-name { cursor: pointer; flex-grow: 1; margin-right: 10px; }
+
+.route-controls { 
+    display: flex; align-items: center; 
+    white-space: nowrap; 
+    overflow-x: hidden; 
+}
+.route-controls button { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 5px; line-height: 1; }
+.toggle-visibility-btn { opacity: 0.7; }
+.remove-route-btn { color: #cc0000; font-weight: bold; }
+
+/* --- Список точок --- */
+.points-list-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+#open-details-modal-btn {
+    background: none; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;
+    font-size: 16px; padding: 2px 6px; line-height: 1;
+}
+#open-details-modal-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+#open-details-modal-btn:hover:not(:disabled) { background-color: #f0f0f0; }
+
+#points-list-items { font-size: 0.85em; }
+
+.empty-list-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    padding: 20px;
+    flex-grow: 1; 
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* --- Фільтр та повідомлення --- */
+.filter-section {
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 5px; 
+    flex-shrink: 0; 
+}
+.message {
+    padding: 10px 0 0 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; 
+}
+.message.info { background-color: #e0eafc; color: #004085; padding: 10px; margin-top: 15px; }
+.message.success { background-color: #d4edda; color: #155724; padding: 10px; margin-top: 15px; }
+.message.error { background-color: #f8d7da; color: #721c24; padding: 10px; margin-top: 15px; }
+
+.filter-reset-btn {
+    background: none; border: 1px solid currentColor;
+    color: inherit; opacity: 0.7; border-radius: 50%;
+    width: 22px; height: 22px; line-height: 18px;
+    text-align: center; cursor: pointer; font-weight: bold;
+    padding: 0; margin-left: 10px; flex-shrink: 0;
+}
+.filter-reset-btn:hover { opacity: 1; }
+
+/* --- ІНФОРМАЦІЯ ПРО РОЗРОБНИКА --- */
+.sidebar-footer > p { 
+    font-size: 0.75em;
+    color: #888;
+    text-align: center;
+    padding-top: 10px; 
+    margin-top: 10px; 
+    border-top: 1px solid #eee; 
+    flex-shrink: 0; 
+    padding-bottom: 5px; 
+    margin-bottom: 0;
+}
+.sidebar-footer a {
+    color: #888;
+    text-decoration: none;
+}
+.sidebar-footer a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* --- Карта та маркери --- */
+#map { flex-grow: 1; height: 100%; transition: width 0.3s ease-in-out; }
+
+.custom-marker-icon {
+    position: relative; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+.custom-marker-icon .marker-pin {
+    width: 28px; height: 28px; border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg); border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+.custom-marker-icon .marker-number {
+    position: absolute; color: white;
+    font-size: 12px; font-weight: bold; text-align: center;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(217, 83, 79, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(217, 83, 79, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(217, 83, 79, 0); }
+}
+.long-stop-marker .marker-pin {
+    background-color: var(--danger-color) !important;
+    animation: pulse 2s infinite;
+}
+
+/* --- Стилі для кластеризації --- */
+.marker-cluster {
+    display: flex; justify-content: center; align-items: center;
+    background-clip: padding-box; border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0,0,0,0.6);
+    transition: all 0.2s ease-in-out;
+}
+.marker-cluster span {
+    color: white; font-weight: bold; font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+.marker-cluster-small { background-color: rgba(24, 128, 224, 0.8); }
+.marker-cluster-medium { background-color: rgba(240, 195, 15, 0.8); }
+.marker-cluster-large { background-color: rgba(251, 86, 77, 0.8); }
+
+/* --- Стилі для контролів карти --- */
+.map-controls {
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    gap: 15px; 
+    padding: 10px 0; /* Це вже додає відступи */
+    flex-wrap: wrap;
+    width: 100%; 
+    box-sizing: border-box;
+    flex-shrink: 0; 
+    overflow-x: hidden; 
+}
+.map-controls-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+    flex-shrink: 1;
+}
+
+.map-controls span {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #343a40;
+    display: block;
+    margin-bottom: 0; 
+    white-space: nowrap; 
+}
+
+/* --- Стилі для спадаючого списку --- */
+.map-controls-group select {
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    flex-shrink: 1; 
+    min-width: 120px; 
+}
+.map-controls-group select:hover {
+    border-color: #999;
+}
+.map-controls-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* --- Стилі для перемикача кластеризації --- */
+.toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc; transition: .4s;
+    border-radius: 28px;
+}
+.slider:before {
+    position: absolute; content: "";
+    height: 20px; width: 20px;
+    left: 4px; bottom: 4px;
+    background-color: white; transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(22px); }
+
+/* --- Модальне вікно --- */
+.modal-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 2000; transition: opacity 0.3s;
+    pointer-events: none;
+}
+.modal-container.hidden { display: none; }
+
+.modal-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: background-color 0.3s;
+}
+.modal-overlay.hidden { background-color: transparent; }
+
+.modal-content {
+    background-color: white; border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2001;
+    width: 90%; max-width: 600px; display: flex; flex-direction: column;
+    max-height: 90vh;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    overflow: hidden;
+    min-width: 350px;
+    min-height: 300px;
+}
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; border-bottom: 1px solid #ddd;
+    cursor: move;
+    background-color: #f7f7f7;
+    border-radius: 10px 10px 0 0;
+}
+.modal-header h3 { margin: 0; font-size: 1.2em; }
+.modal-header-controls { display: flex; align-items: center; gap: 15px; }
+.modal-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; font-weight: bold; padding: 0 5px; }
+
+.modal-body {
+    overflow-y: auto;
+    padding: 0;
+    display: flex; flex-direction: column;
+}
+.modal-body .sticky-summary {
+    position: sticky; top: 0; z-index: 10;
+    background-color: var(--light-bg);
+}
+
+.resizer {
+    position: absolute; right: 0; bottom: 0;
+    width: 15px; height: 15px; cursor: se-resize;
+    background: repeating-linear-gradient(-45deg, #ccc, #ccc 1px, transparent 1px, transparent 4px);
+}
+
+.toggle-switch-small { position: relative; display: inline-block; width: 34px; height: 20px; }
+.toggle-switch-small input { opacity: 0; width: 0; height: 0; }
+.slider-small {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc; transition: .4s;
+    border-radius: 20px;
+}
+.slider-small:before {
+    position: absolute; content: "";
+    height: 14px; width: 14px;
+    left: 3px; bottom: 3px;
+    background-color: white; transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider-small { background-color: var(--primary-color); }
+input:checked + .slider-small:before { transform: translateX(14px); }
+
+/* --- Стилі для списку унікальних дат у сайдбарі --- */
+.date-filter-list {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--light-bg);
+    max-height: 150px;
+    overflow-y: auto;
+}
+.date-filter-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+}
+.date-filter-list li:hover { background-color: #e0eafc; }
+.date-filter-list li.active {
+    background-color: var(--primary-color) !important;
+    color: white;
+    font-weight: bold;
+}
+.date-filter-list li.active .unique-date-count {
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+}
+.unique-date-count {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+/* --- Стилі для списку точок (3 колонки) --- */
+#points-list-items li:not(.empty-list-item),
+.modal-body .points-list-items li:not(.empty-list-item) {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 15px;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+#points-list-items li:hover, .modal-body .points-list-items li:hover {
+    background-color: #f0f8ff;
+    cursor: pointer;
+}
+
+.point-index { color: #888; text-align: right; }
+.point-duration {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.point-duration.long-stop {
+    color: var(--danger-color);
+    background-color: #f2dede;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+.point-info { display: none; }
+
+/* --- Стилі для контролів карти (масштаб) --- */
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    width: 34px !important;
+    height: 34px !important;
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    transition: background-color 0.2s ease-in-out !important;
+}
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+    background-color: var(--primary-color-dark) !important;
+}
+.leaflet-control-zoom-in {
+    border-bottom: 1px solid rgba(255,255,255,0.3) !important;
+}
+.leaflet-control-zoom-out {
+    border-top: none !important;
+}
+.leaflet-control-zoom a {
+    line-height: 34px !important;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 0 !important;
+}
