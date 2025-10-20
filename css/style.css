@@ -79,7 +79,8 @@ html, body {
     gap: 15px; 
     margin: 10px 0; 
     min-height: 0;
-    overflow: hidden; /* Запобігаємо переповненню */
+    /* ВИПРАВЛЕНО: НЕ прокручуємо тут, дозволяємо вкладеним спискам прокручуватися самостійно */
+    /* overflow-y: auto; -- ЦЕ ВИДАЛЕНО! */ 
     padding-right: 5px; 
 }
 
@@ -98,21 +99,18 @@ html, body {
     display: flex; 
     flex-direction: column; 
     box-shadow: 0 1px 3px rgba(0,0,0,0.08); 
+    /* ДОДАНО: Для коректного flex-розподілу всередині (заголовок фіксований, список прокручується) */
     overflow: hidden; 
-    min-height: 0; /* Важливо для flex-контейнерів */
 }
 
 #file-list-container {
     flex-shrink: 0;
-    flex-basis: 200px; /* Базовий розмір замість max-height */
-    min-height: 120px;
-    max-height: 300px; /* Обмеження максимальної висоти */
+    max-height: 35%;
 }
 
 #points-list-container {
     flex-grow: 1;
-    flex-shrink: 1;
-    min-height: 200px;
+    min-height: 150px;
 }
 
 /* --- Заголовки списків: ФІКСОВАНІ --- */
@@ -141,39 +139,12 @@ html, body {
 
 /* --- ВМІСТ СПИСКІВ: ПРОКРУЧУЄТЬСЯ --- */
 #route-items, #points-list-items {
-    padding: 0;
-    margin: 0;
-    overflow-y: auto; /* Прокрутка для списку */
-    overflow-x: hidden; /* Приховуємо горизонтальну прокрутку */
+    padding: 0; 
+    overflow-y: auto; /* Тільки тут прокрутка */
     flex-grow: 1;
-    flex-shrink: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0; /* Важливо для flex-контейнерів з overflow */
-    max-height: 100%; /* Обмежуємо висоту */
-}
-
-/* Стилі для скролбару (для webkit браузерів) */
-#route-items::-webkit-scrollbar,
-#points-list-items::-webkit-scrollbar {
-    width: 8px;
-}
-
-#route-items::-webkit-scrollbar-track,
-#points-list-items::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-#route-items::-webkit-scrollbar-thumb,
-#points-list-items::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-#route-items::-webkit-scrollbar-thumb:hover,
-#points-list-items::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    min-height: 0; /* ДОДАНО: Важливо для flex-контейнерів з overflow */
 }
 
 /* --- Область завантаження файлів --- */
