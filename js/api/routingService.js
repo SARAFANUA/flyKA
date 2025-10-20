@@ -1,7 +1,5 @@
 // js/api/routingService.js
 
-const osrmBaseUrl = 'http://127.0.0.1:5000';
-
 /**
  * Отримує геометрію маршруту від OSRM для заданого набору координат.
  * @param {Array<[number, number]>} latLngs - Масив координат [широта, довгота].
@@ -11,6 +9,17 @@ const osrmBaseUrl = 'http://127.0.0.1:5000';
 export async function getRoute(latLngs, vehicleType = 'car') {
     if (!latLngs || latLngs.length < 2) {
         return [];
+    }
+
+    // Check for OSRM configuration at runtime (allows dynamic configuration)
+    // OSRM can be configured via window.OSRM_BASE_URL
+    // To enable OSRM, set window.OSRM_BASE_URL = 'http://localhost:PORT' in your HTML or browser console
+    const osrmBaseUrl = (typeof window !== 'undefined' && window.OSRM_BASE_URL) || null;
+
+    // If OSRM is not configured, use straight lines for all vehicle types
+    if (!osrmBaseUrl) {
+        console.log('Routing service: OSRM not configured, using straight lines between points.');
+        return latLngs;
     }
 
     // --- Крок 3: Обробка нових типів маршрутів ---

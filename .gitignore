@@ -1,6 +1,24 @@
 # Дані OSRM (ці файли дуже великі і не повинні потрапляти в Git)
 osrm-data/
 
-# Можливо, інші тимчасові файли:
-node_modules
-npm-debug.log
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Replit
+.replit
+.upm
+.config
+.cache
+.breakpoints
+replit.nix
+.pythonlibs
